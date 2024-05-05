@@ -1,0 +1,40 @@
+<app-navbar></app-navbar>
+<ng-container *ngIf="accounts$ |async as result" [ngSwitch]="result.state">
+    <div class="container mt-4">
+        <h2 class="mb-4">Bank Accounts</h2>
+        <ng-container *ngSwitchCase="DATASTATE.LOADING" class="alert alert-info" role="alert">
+            <i class="bi bi-hourglass"></i> Loading data...
+        </ng-container>
+        <ng-container *ngIf="DATASTATE.ERROR" class="alert alert-danger" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i> {{ result.error }}
+        </ng-container>
+        <ng-container *ngSwitchCase="DATASTATE.LOADED">
+            <table class="table table-bordered table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Account Type</th>
+                        <th scope="col">Balance</th>
+                        <th scope="col">client_id</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let account of result.data">
+                        <th scope="row">{{account.id}}</th>
+                        <td>{{account.accountType}}</td>
+                        <td>{{account.balance }} DH</td>
+                        <td>{{account.clientId }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" (click)="editAccount(account.id)">
+                                <i class="bi bi-pencil"></i> Edit
+                            </button>
+                            <button class="btn btn-sm btn-danger mx-2" (click)="deleteAccount(account.id)">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </ng-container>
+    </div>
+</ng-container>

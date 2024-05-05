@@ -1,0 +1,99 @@
+version: "3.8"
+volumes:
+  mysql_data:
+    driver: local
+services:
+  mysql:
+    image: mysql:5.7
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: keycloak
+      MYSQL_USER: mossaab
+      MYSQL_PASSWORD: 1234
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0.4
+    environment:
+      DB_VENDOR: MYSQL
+      DB_ADDR: mysql
+      DB_DATABASE: keycloak
+      DB_USER: mossaab
+      DB_PASSWORD: 1234
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KEYCLOAK_URL: http://localhost:8080
+      KEYCLOAK_REALM: account_realm
+      KEYCLOAK_CLIENT_ID: AccountClient
+    command:
+      - start-dev
+    ports:
+      - "8080:8080"
+    expose:
+      - "8080"
+    depends_on:
+      - mysql
+    restart: on-failure
+  discovery_service:
+    build:
+      context: ./DiscoveryService
+    container_name: discovery_service_container
+    ports:
+      - "8761:8761"
+    expose:
+      - "8761"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8761/actuator/health" ]
+      interval: 10s
+      retries: 4
+  client_service:
+    build:
+      context: ./ClientService
+    container_name: client_service_container
+    environment:
+      - DISCOVERY_SERVICE_URL=http://discovery_service:8761/eureka
+      - KEYCLOAK_REALM=account_realm
+    ports:
+      - "8081:8081"
+    expose:
+      - "8081"
+    depends_on:
+      discovery_service:
+        condition: service_healthy
+  account_service:
+    build:
+      context: ./BankAccountService
+    container_name: account_service_container
+    environment:
+      - DISCOVERY_SERVICE_URL=http://discovery_service:8761/eureka
+      - KEYCLOAK_REALM=account_realm
+    ports:
+      - "8082:8082"
+    expose:
+      - "8082"
+  gateway_service:
+    build:
+      context: ./Gateway
+    container_name: gateway_container
+    ports:
+      - "9999:999"
+    expose:
+      - "9999"
+    environment:
+      - DISCOVERY_SERVICE_URL=http://discovery_service:8761/EUREKA
+    depends_on:
+      - discovery_service
+  angular_app:
+    build:
+      context: ./front_end
+    ports:
+      - "82:80"
+    expose:
+      - "82"
+    restart: unless-stopped
+    depends_on:
+      - keycloak
+    environment:
+      - KEYCLOAK_URL=http://localhost:8080
+      - KEYCLOAK_REALM=account_realm
+      - KEYCLOAK_CLIENT_ID=AccountClient

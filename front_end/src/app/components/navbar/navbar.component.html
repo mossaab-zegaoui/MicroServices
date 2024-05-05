@@ -1,0 +1,42 @@
+<!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #47BFAF;">
+  <div class="container">
+    <!-- Brand Logo -->
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!-- Navbar Links -->
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ml-auto">
+        <!-- Home Link -->
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/home"><i class="bi-house-door"></i> Home</a>
+        </li>
+
+        <!-- Clients Link -->
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/clients"><i class="bi-person"></i> Clients</a>
+        </li>
+
+        <!-- Accounts Link -->
+        <li class="nav-item" *ngIf="hasRole('ADMIN')">
+          <a class="nav-link" routerLink="/accounts"><i class="bi-wallet"></i> Accounts</a>
+        </li>
+
+        <!-- Login Link -->
+        <li class="nav-item">
+          <ng-container *ngIf="!isLoggedIn else notLoggedIn">
+            <a class="nav-link pointer-event" role="button" (click)="onLogin() "><i class="bi-box-arrow-in-right "></i>
+              Login</a>
+          </ng-container>
+          <ng-template #notLoggedIn>
+            <a class="nav-link" role="button" (click)="onLogout()"><i class="bi-box-arrow-in-right"></i> Log out</a>
+          </ng-template>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+</nav>

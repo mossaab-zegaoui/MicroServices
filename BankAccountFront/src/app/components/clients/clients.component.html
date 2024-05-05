@@ -1,0 +1,43 @@
+<app-navbar></app-navbar>
+
+<!-- {{clients$ | async | json}} -->
+<!-- app-table.component.html -->
+<!-- app-table.component.html -->
+<ng-container *ngIf="clients$ |async as result" [ngSwitch]="result.state">
+    <div class="container mt-4">
+        <h2 class="mb-4">Clients</h2>
+        <ng-container *ngSwitchCase="DATASTATE.LOADING" class="alert alert-info" role="alert">
+            <i class="bi bi-hourglass"></i> Loading data...
+        </ng-container>
+        <ng-container *ngIf="DATASTATE.ERROR" class="alert alert-danger" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i> {{ result.error }}
+        </ng-container>
+        <ng-container *ngSwitchCase="DATASTATE.LOADED">
+            <table class="table table-bordered table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let client of result.data">
+                        <th scope="row">{{client.id}}</th>
+                        <td>{{client.name}}</td>
+                        <td>{{client.email }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" (click)="editProduct(1)">
+                                <i class="bi bi-pencil"></i> Edit
+                            </button>
+                            <button class="btn btn-sm btn-danger mx-2" (click)="deleteProduct(1)">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </ng-container>
+    </div>
+</ng-container>
